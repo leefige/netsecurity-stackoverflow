@@ -232,34 +232,34 @@ Disassembly of section .text:
 
 0804865c <main>:
  804865c:	8d 4c 24 04          	lea    0x4(%esp),%ecx
- 8048660:	83 e4 f0             	and    $0xfffffff0,%esp	; aliagn esp
- 8048663:	ff 71 fc             	pushl  -0x4(%ecx)		; old esp
+ 8048660:	83 e4 f0             	and    $0xfffffff0,%esp
+ 8048663:	ff 71 fc             	pushl  -0x4(%ecx)
  8048666:	55                   	push   %ebp
- 8048667:	89 e5                	mov    %esp,%ebp		; setup stack
- 8048669:	51                   	push   %ecx				; save ecx, start from here
- 804866a:	83 ec 04             	sub    $0x4,%esp		; <1>
- 804866d:	a1 80 a0 04 08       	mov    0x804a080,%eax	; NOTE this addr: buf 1
+ 8048667:	89 e5                	mov    %esp,%ebp
+ 8048669:	51                   	push   %ecx
+ 804866a:	83 ec 04             	sub    $0x4,%esp
+ 804866d:	a1 80 a0 04 08       	mov    0x804a080,%eax
  8048672:	83 ec 08             	sub    $0x8,%esp
- 8048675:	6a 00                	push   $0x0				; arg:0
- 8048677:	50                   	push   %eax				; arg: eax, addr of buf
+ 8048675:	6a 00                	push   $0x0
+ 8048677:	50                   	push   %eax
  8048678:	e8 c3 fd ff ff       	call   8048440 <setbuf@plt>
- 804867d:	83 c4 10             	add    $0x10,%esp		; esp -> <1>
- 8048680:	a1 84 a0 04 08       	mov    0x804a084,%eax	; buf 2
+ 804867d:	83 c4 10             	add    $0x10,%esp
+ 8048680:	a1 84 a0 04 08       	mov    0x804a084,%eax
  8048685:	83 ec 08             	sub    $0x8,%esp
  8048688:	6a 00                	push   $0x0
  804868a:	50                   	push   %eax
  804868b:	e8 b0 fd ff ff       	call   8048440 <setbuf@plt>
  8048690:	83 c4 10             	add    $0x10,%esp
- 8048693:	a1 60 a0 04 08       	mov    0x804a060,%eax	; buf 3
+ 8048693:	a1 60 a0 04 08       	mov    0x804a060,%eax
  8048698:	83 ec 08             	sub    $0x8,%esp
  804869b:	6a 00                	push   $0x0
  804869d:	50                   	push   %eax
  804869e:	e8 9d fd ff ff       	call   8048440 <setbuf@plt>
  80486a3:	83 c4 10             	add    $0x10,%esp
  80486a6:	83 ec 04             	sub    $0x4,%esp
- 80486a9:	6a 1e                	push   $0x1e			; arg2
- 80486ab:	68 38 a0 04 08       	push   $0x804a038		; arg1: addr 
- 80486b0:	6a 01                	push   $0x1				; arg0
+ 80486a9:	6a 1e                	push   $0x1e
+ 80486ab:	68 38 a0 04 08       	push   $0x804a038
+ 80486b0:	6a 01                	push   $0x1
  80486b2:	e8 f9 fd ff ff       	call   80484b0 <write@plt>
  80486b7:	83 c4 10             	add    $0x10,%esp
  80486ba:	e8 0c ff ff ff       	call   80485cb <dovuln>
